@@ -22,8 +22,9 @@ public class TwitterController extends AccessoryController
 implements OnClickListener  {
 	static final String TAG = "TwitterController";
 		
-	public String CONSUMER_KEY = "8J68QsFSV5wtABBKamWuEw";
-	public String CONSUMER_SECRET = "Q601QmzVlKZW2VuZIF7ecGWgDzaV8XBs84PyUUy8KI";
+	public String CONSUMER_KEY = "*****************"; // dev.twitter.com Ç≈
+	public String CONSUMER_SECRET = "*****************************"; // dev.twitter.com Ç≈
+	public String CALLBACK_URL = "http://www.yama-lab.org" ; // "myapp://oauth";
 	
 	private String nechatterStatus;
 	private AdkTwitterActivity activity;
@@ -70,7 +71,6 @@ implements OnClickListener  {
 		twitter = new TwitterFactory(confbuilder.build()).getInstance();
 //        twitterOauth = new OAuthAuthorization(configuration);
 
-		String CALLBACK_URL = "http://yama-linux.cc.kagoshima-u.ac.jp" ; // "myapp://oauth";
 		// requestTokenÇ‡ÉNÉâÉXïœêîÅB
 		try {
 			requestToken = twitter.getOAuthRequestToken(CALLBACK_URL);
@@ -126,15 +126,8 @@ implements OnClickListener  {
 	     protected void onPostExecute(String result) {
 	         super.onPostExecute(result);
 	         if (result != null) {
-//	   		  activity.startActivityForResult(intent, 1);
 		       activity.showTabContents(R.id.main_login_label);
 	     		activity.mTwitterLoginController.loadUrl(result);
-//	     		activity.mTwitterLoginController.loadUrl(requestToken.getAuthorizationURL());
-//	             activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/request_token");
-//	             activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/authorize");
-//	     		activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/access_token");
-//	     		activity.mTwitterLoginController.loadUrl("https://api.twitter.com/1/");
-//	              mWebView.loadUrl(result);
 	         } else {
 	                Log.d(TAG,"");
 	         }

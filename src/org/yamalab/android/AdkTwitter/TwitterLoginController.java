@@ -44,9 +44,7 @@ public class TwitterLoginController extends AccessoryController {
 			public void onPageFinished(WebView view, String url) {
 				super.onPageFinished(view, url);
 
-				String CALLBACK_URL = "http://yama-linux.cc.kagoshima-u.ac.jp";
-//				String CALLBACK_URL = "";
-				if(url != null && url.startsWith(CALLBACK_URL )){
+				if(url != null && url.startsWith(mTwitterController.CALLBACK_URL )){
 					String[] urlParameters = url.split("\\?")[1].split("&");
 
 					String oauthToken = "";
