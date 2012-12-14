@@ -4,7 +4,9 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
+import twitter4j.auth.OAuthAuthorization;
 import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
 import android.content.Intent;
@@ -30,6 +32,7 @@ implements OnClickListener  {
 	private Button logoutbutton;
 	public RequestToken requestToken = null;
 	public Twitter twitter = null;
+//	public OAuthAuthorization twitterOauth;
 	private boolean accessingWeb=false;
     /** Called when the activity is first created. */
     
@@ -58,46 +61,84 @@ implements OnClickListener  {
 		ConfigurationBuilder confbuilder  = new ConfigurationBuilder(); 
 
 		confbuilder.setOAuthConsumerKey(CONSUMER_KEY).setOAuthConsumerSecret(CONSUMER_SECRET); 
+		confbuilder.setGZIPEnabled(false);
         if(activity==null) {
         	Log.d(TAG,"connectTwitter activity==null");
         	return;
         }
+//        Configuration configuration = confbuilder.build();
 		twitter = new TwitterFactory(confbuilder.build()).getInstance();
-		
-		
+//        twitterOauth = new OAuthAuthorization(configuration);
+
 		String CALLBACK_URL = "http://yama-linux.cc.kagoshima-u.ac.jp" ; // "myapp://oauth";
 		// requestTokenもクラス変数。
 		try {
 			requestToken = twitter.getOAuthRequestToken(CALLBACK_URL);
+//			requestToken = twitterOauth.getOAuthRequestToken(CALLBACK_URL);
 		} catch (TwitterException e) {
 			// TODO Auto-generated catch block
+			Log.d(TAG,"connectTwitter-twitter.getOAuthError "+e.toString());
+			e.printStackTrace();
+		}catch (Exception e){
+			Log.d(TAG,"connectTwitter-twitter.getOAuthError "+e.toString());
 			e.printStackTrace();
 		}
+        if(requestToken==null) {
+        	Log.d(TAG,"connectTwitter requestToken==null");
+//        	return;
+        }
 
 		  // 認証用URLをインテントにセット。
 		  // TwitterLoginはActivityのクラス名。
 //		  Intent intent = new Intent(this.activity, TwitterLoginController.class);
 //		  intent.putExtra("auth_url", activity.requestToken.getAuthorizationURL());
-
+/*
 		  // アクティビティを起動
 //		  activity.startActivityForResult(intent, 1);
 		activity.mTwitterLoginController.loadUrl(requestToken.getAuthorizationURL());
+//        activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/request_token");
+//        activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/authorize");
+//		activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/access_token");
+//		activity.mTwitterLoginController.loadUrl("https://api.twitter.com/1/");
 		activity.showTabContents(R.id.main_login_label);
-		setAccessingWeb(false);
+		*/
 	}
-	private class connectTwitterTask extends AsyncTask<String, Integer, Long> {
-	     protected Long doInBackground(String... params ) {
-	    	Log.d(TAG, "doInBackground - " + params[0]);
+
+    
+	private class connectTwitterTask extends AsyncTask<Void, Void, String> {
+		 @Override
+	     protected String doInBackground(Void... params ) {
+	    	Log.d(TAG, "connectTwitterTask.doInBackground - " );
 	    	try{
 	    	   connectTwitter();
 	    	}
 	    	catch(Exception e){
+	    		setAccessingWeb(false);
 	    		Log.d(TAG,"tweetTask error:"+e.toString());
 				e.printStackTrace();
-				return 0L;
+				return "";
 			}
-	    	return 1L;
+    		setAccessingWeb(false);
+    		String rtn=requestToken.getAuthorizationURL();
+	    	return rtn;
 	     }
+	     @Override
+	     protected void onPostExecute(String result) {
+	         super.onPostExecute(result);
+	         if (result != null) {
+//	   		  activity.startActivityForResult(intent, 1);
+		       activity.showTabContents(R.id.main_login_label);
+	     		activity.mTwitterLoginController.loadUrl(result);
+//	     		activity.mTwitterLoginController.loadUrl(requestToken.getAuthorizationURL());
+//	             activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/request_token");
+//	             activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/authorize");
+//	     		activity.mTwitterLoginController.loadUrl("https://api.twitter.com/oauth/access_token");
+//	     		activity.mTwitterLoginController.loadUrl("https://api.twitter.com/1/");
+//	              mWebView.loadUrl(result);
+	         } else {
+	                Log.d(TAG,"");
+	         }
+	    }
 	}
 	
     final private boolean isConnected(String nechatterStatus){
@@ -141,8 +182,9 @@ implements OnClickListener  {
 		}else{
 			
 			try {
-				connectTwitter();
-			} catch (TwitterException e) {
+//				connectTwitter();
+				new connectTwitterTask().execute();
+			} catch (Exception e) {
 				//showToast(R.string.nechatter_connect_error);
 			}
 		}
@@ -151,8 +193,9 @@ implements OnClickListener  {
 	  if(v==logoutbutton){
   		disconnectTwitter();
 		try {
-			connectTwitter();
-		} catch (TwitterException e) {
+//			connectTwitter();
+			new connectTwitterTask().execute();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -186,14 +229,12 @@ implements OnClickListener  {
 		   	if(isConnected(nechatterStatus)){
 		   		if(tweetMessage==null) return false;
 		   	    activity.mTweet.tweet(tweetMessage);
-		   	    return true;	
 		   	}
 		   	else{
 		   		/* */
-					new connectTwitterTask().execute("");
+//					new connectTwitterTask().execute("");
 		   		/* */
 		   	}
-		   	accessingWeb=false;
 		   	return true;
 		}
 

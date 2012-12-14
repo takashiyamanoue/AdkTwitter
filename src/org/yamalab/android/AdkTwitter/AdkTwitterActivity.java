@@ -88,7 +88,7 @@ public class AdkTwitterActivity extends Activity implements OnClickListener {
 //	public Hashtable properties;
 	AdkService adkService;
 	boolean mBound=false;
-	boolean emulatorDebug=true;
+	boolean emulatorDebug=false;
 	/* */
 	// comment the following onCreate and onResume for eclipse debugging
 	public void onCreate(Bundle savedInstanceState) {

@@ -1,13 +1,17 @@
 
 package org.yamalab.android.AdkTwitter;
 
+import java.util.Vector;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
+import twitter4j.auth.OAuthAuthorization;
 import twitter4j.auth.RequestToken;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebSettings;
@@ -22,17 +26,16 @@ public class TwitterLoginController extends AccessoryController {
     WebView webView;
     TwitterController mTwitterController;
     Twitter mTwitter;
-    RequestToken requestToken;
+   RequestToken requestToken;
 	TwitterLoginController(AdkTwitterActivity hostActivity, TwitterController tc) {
         super(hostActivity);
 		Log.d(TAG,"TwitterLoginController");
         activity=hostActivity;
         mTwitterController=tc;
-//        activity.setContentView(R.layout.tweetlogin);
 		webView = (WebView)findViewById(R.id.twitterlogin);
     }
-    
 	public void loadUrl(String x){
+		mTwitterController.setAccessingWeb(true);
 		WebSettings webSettings = webView.getSettings();
 		//これで別のユーザーとしてサインインする。が実行できる
 		webSettings.setJavaScriptEnabled(true);
@@ -61,24 +64,13 @@ public class TwitterLoginController extends AccessoryController {
 						oauthVerifier = urlParameters[1].split("=")[1];
 					}
 
-					/*
-					Intent intent = getIntent();
-					intent.putExtra("oauth_token", oauthToken);
-					intent.putExtra("oauth_verifier", oauthVerifier);
-
-					setResult(Activity.RESULT_OK, intent);
-					*/
-					setOAuth(oauthToken, oauthVerifier);
-//					finish();
+					new setOAuthTask().execute(oauthToken,oauthVerifier);
 				}
 			}
 		});
 
 
-//		webView.loadUrl(activity.requestToken.getAuthorizationURL());
-		
-		webView.loadUrl(x);
-		webView.setFocusable(true);
+		new loadUrlTask().execute(x);
 	}
 	
 	@Override
@@ -86,11 +78,59 @@ public class TwitterLoginController extends AccessoryController {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	private class loadUrlTask extends AsyncTask<String, Void, String> {
+		 @Override
+	     protected String doInBackground(String... params ) {
+	    	Log.d(TAG, "connectTwitterTask.doInBackground - " );
+	    	try{
+		    	String url=params[0];
+				webView.loadUrl(url);
+				webView.setFocusable(true);
+	    	}
+	    	catch(Exception e){
+	    		Log.d(TAG,"tweetTask error:"+e.toString());
+				e.printStackTrace();
+				return "error!";
+			}
+	    	return "ok";
+	     }
+	     @Override
+	     protected void onPostExecute(String result) {
+	         super.onPostExecute(result);
+			  mTwitterController.setAccessingWeb(false);
+	    }
+	}
+		
+	private class setOAuthTask extends AsyncTask<String, Void, String> {
+		 @Override
+	     protected String doInBackground(String... params ) {
+	    	Log.d(TAG, "connectTwitterTask.doInBackground - " );
+	    	try{
+	    		String token=params[0];
+	    		String verifier=params[1];
+                setOAuth(token,verifier);
+	    	}
+	    	catch(Exception e){
+	    		Log.d(TAG,"tweetTask error:"+e.toString());
+				e.printStackTrace();
+				return "error!";
+			}
+	    	return "ok";
+	     }
+	     @Override
+	     protected void onPostExecute(String result) {
+	         super.onPostExecute(result);
+			  mTwitterController.setAccessingWeb(false);
+	    }
+	}
+			
 	/* */
     protected void setOAuth(String oauthToken, String oauthVerifier) {
 		Log.d(TAG,"setOAuth token="+oauthToken+" verifier="+oauthVerifier);
 
         mTwitter=mTwitterController.twitter;
+//		mTwitter=mTwitterController.twitterOauth;
         requestToken=mTwitterController.requestToken;
 			AccessToken accessToken = null;
 	        if(mTwitter==null) {
@@ -112,13 +152,11 @@ public class TwitterLoginController extends AccessoryController {
 
 		        editor.commit();
 		        
-		        //つぶやくページへGO
-//		        Intent intent2 = new Intent(this, Tweet.class);
-//				startActivityForResult(intent2, 0);
 		        activity.showTabContents(R.id.main_tweet_label);
 		        //finish();
 			} catch (TwitterException e) {
-				//showToast(R.string.nechatter_connect_error);
+	    		Log.d(TAG,"setOAuth error:"+e.toString());
+				e.printStackTrace();
 			}
     }
 }
