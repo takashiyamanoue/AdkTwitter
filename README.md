@@ -1,5 +1,8 @@
 AdkTwitter
+(http://www.yama-lab.org/android-adk/index.php?AdkTwitter )
+
 	•	作成 鹿児島大学　山之上　卓
+	
 	•	作成日 2012 11/23
 
 	•	概要
