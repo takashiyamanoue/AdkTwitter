@@ -5,7 +5,9 @@ AdkTwitter
 	•	概要
 Arduino ボードに接続された光センサ(LilyPad Light Sensor) で光の強度を 計測し、暗くなったら、LED を点灯し、明るくなったら LED を消灯します。 また、LED が点灯・消灯したとき、Android 端末を経由して、twitter にそのことをつぶやきます。
 
-	•	物理的接続概要 LED----------+-Arduino Mega ADK ---(ADK)---Android---(Twitter4j)--- Twitter Light Sensor-+
+	•	物理的接続概要
+	   LED----------+-Arduino Mega ADK ---(ADK)---Android---(Twitter4j)--- Twitter
+	   Light Sensor-+
 	
 	•	Android は、2.3.4 以上
 	•	LED, Sensor, Arduino Mega の接続
